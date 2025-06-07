@@ -1,0 +1,76 @@
+---
+format_version: '11'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+workflows:
+  primary:
+    description: USA Home iOS Build
+    steps:
+    - git-clone@8: {}
+    - script@1:
+        title: Complete iOS Build
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -ex
+            
+            echo "Building USA Home iOS App"
+            cd ios/App
+            
+            echo "Creating Podfile"
+            cat > Podfile << 'EOF'
+            platform :ios, '14.0'
+            use_frameworks!
+            install! 'cocoapods', :disable_input_output_paths => true
+            
+            target 'App' do
+              pod 'Capacitor', '~> 6.0'
+              pod 'CapacitorCordova', '~> 6.0'
+              pod 'CapacitorApp', '~> 6.0'
+              pod 'CapacitorBrowser', '~> 6.0'
+              pod 'CapacitorDevice', '~> 6.0'
+              pod 'CapacitorNetwork', '~> 6.0'
+              pod 'CapacitorPreferences', '~> 6.0'
+              pod 'CapacitorSplashScreen', '~> 6.0'
+              pod 'CapacitorStatusBar', '~> 6.0'
+            end
+            
+            post_install do |installer|
+              installer.pods_project.targets.each do |target|
+                target.build_configurations.each do |config|
+                  config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+                  config.build_settings['CODE_SIGN_IDENTITY'] = ""
+                  config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+                  config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+                end
+              end
+            end
+            EOF
+            
+            echo "Installing dependencies"
+            pod install --verbose
+            
+            echo "Creating iOS archive"
+            xcodebuild archive \
+              -workspace App.xcworkspace \
+              -scheme App \
+              -configuration Release \
+              -archivePath build/App.xcarchive \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO \
+              SKIP_INSTALL=NO \
+              ONLY_ACTIVE_ARCH=NO
+              
+            echo "Packaging build"
+            cd ../../
+            mkdir -p artifacts
+            cp -r ios/App/build/ artifacts/
+            tar -czf usa-home-ios-final.tar.gz artifacts/
+            echo "Build complete"
+            
+    - deploy-to-bitrise-io@2:
+        inputs:
+        - deploy_path: usa-home-ios-final.tar.gz
+        - notify_user_groups: none
+        - is_enable_public_page: false

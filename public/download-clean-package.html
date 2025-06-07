@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download USA Home Clean Package</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .download-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        .file-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .setup-steps {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .setup-steps h3 {
+            color: #ffd700;
+            margin-top: 0;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .step:last-child {
+            border-bottom: none;
+        }
+        .step strong {
+            color: #ffd700;
+        }
+        .highlight {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 USA Home Clean Package</h1>
+        
+        <div class="download-section">
+            <h2>Ready for Download</h2>
+            <div class="file-info">
+                <strong>File:</strong> usa-home-clean-package.tar.gz<br>
+                <strong>Size:</strong> 14MB<br>
+                <strong>Contains:</strong> Complete iOS project with clean configurations
+            </div>
+            <a href="/usa-home-clean-package.tar.gz" class="download-btn" download>
+                📦 Download Clean Package
+            </a>
+        </div>
+
+        <div class="setup-steps">
+            <h3>🚀 Setup Instructions</h3>
+            
+            <div class="step">
+                <strong>1. Create New GitHub Repository</strong><br>
+                • Go to github.com → New repository<br>
+                • Name: <span class="highlight">usa-home-ios-clean</span><br>
+                • Set to Public, don't add README
+            </div>
+
+            <div class="step">
+                <strong>2. Upload Project Files</strong><br>
+                • Extract the downloaded package<br>
+                • Upload ALL files to your new repository<br>
+                • Commit: "Initial USA Home iOS project"
+            </div>
+
+            <div class="step">
+                <strong>3. Connect to Bitrise</strong><br>
+                • Add new app with your repository URL<br>
+                • Select iOS platform<br>
+                • Choose "Primary" workflow
+            </div>
+
+            <div class="step">
+                <strong>4. Start Build</strong><br>
+                • Custom script handles CocoaPods installation<br>
+                • Creates iOS archive for App Store<br>
+                • No automatic test detection conflicts
+            </div>
+        </div>
+
+        <div class="file-info">
+            <h3>✅ Package Improvements</h3>
+            • Clean bitrise.yml with custom script approach<br>
+            • Complete iOS Xcode project files<br>
+            • Working CocoaPods configuration<br>
+            • All app assets and metadata included<br>
+            • Eliminates previous configuration conflicts
+        </div>
+    </div>
+</body>
+</html>
