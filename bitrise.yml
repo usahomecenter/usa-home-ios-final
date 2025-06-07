@@ -17,6 +17,113 @@ workflows:
             echo "Building USA Home iOS App"
             cd ios/App
             
+            echo "Creating required Capacitor files"
+            mkdir -p App/public
+            
+            # Create config.xml
+            cat > App/config.xml << 'CONFIGEOF'
+            <?xml version='1.0' encoding='utf-8'?>
+            <widget id="com.usahome.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+                <name>USA Home</name>
+                <description>Your Dream Home Starts Here</description>
+                <author email="support@usahome.com" href="https://usahome.com">USA Home Team</author>
+                <content src="index.html" />
+                <access origin="*" />
+                <allow-intent href="http://*/*" />
+                <allow-intent href="https://*/*" />
+                <allow-intent href="tel:*" />
+                <allow-intent href="sms:*" />
+                <allow-intent href="mailto:*" />
+                <allow-intent href="geo:*" />
+                <platform name="ios">
+                    <allow-intent href="itms:*" />
+                    <allow-intent href="itms-apps:*" />
+                </platform>
+            </widget>
+            CONFIGEOF
+            
+            # Create capacitor.config.json
+            cat > App/capacitor.config.json << 'CAPEOF'
+            {
+              "appId": "com.usahome.app",
+              "appName": "USA Home",
+              "webDir": "public",
+              "server": {
+                "androidScheme": "https"
+              },
+              "plugins": {
+                "SplashScreen": {
+                  "launchShowDuration": 2000,
+                  "backgroundColor": "#ffffff",
+                  "showSpinner": false
+                },
+                "StatusBar": {
+                  "style": "default"
+                }
+              }
+            }
+            CAPEOF
+            
+            # Create public/index.html
+            cat > App/public/index.html << 'HTMLEOF'
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>USA Home</title>
+                <meta name="description" content="Your Dream Home Starts Here">
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        text-align: center;
+                        min-height: 100vh;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                    }
+                    h1 { font-size: 2.5em; margin-bottom: 20px; }
+                    p { font-size: 1.2em; margin-bottom: 30px; }
+                    .app-info {
+                        background: rgba(255, 255, 255, 0.1);
+                        padding: 30px;
+                        border-radius: 15px;
+                        backdrop-filter: blur(10px);
+                        max-width: 500px;
+                        margin: 0 auto;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="app-info">
+                    <h1>USA Home</h1>
+                    <p>Your Dream Home Starts Here</p>
+                    <p>Complete home solutions platform for American homeowners</p>
+                </div>
+                <script src="capacitor.js"></script>
+            </body>
+            </html>
+            HTMLEOF
+            
+            # Create public/capacitor.js
+            cat > App/public/capacitor.js << 'JSEOF'
+            window.Capacitor = {
+              isNativePlatform: () => true,
+              getPlatform: () => 'ios',
+              Plugins: {}
+            };
+            
+            if (window.webkit && window.webkit.messageHandlers) {
+              console.log('Capacitor iOS bridge ready');
+            } else {
+              console.log('Capacitor running in browser mode');
+            }
+            JSEOF
+            
             echo "Creating Podfile"
             cat > Podfile << 'EOF'
             platform :ios, '14.0'
