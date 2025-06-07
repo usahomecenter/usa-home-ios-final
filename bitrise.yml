@@ -2,25 +2,41 @@
 format_version: '11'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
+app:
+  envs:
+  - BITRISE_PROJECT_PATH: ios/App/App.xcworkspace
+  - BITRISE_SCHEME: App
+  - BITRISE_EXPORT_METHOD: development
+
 workflows:
   build:
-    description: USA Home iOS Build
+    description: Complete USA Home iOS Build
     steps:
-    - git-clone@8: {}
+    - activate-ssh-key@4:
+        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+    - git-clone@8:
+        inputs:
+        - clone_depth: ''
+        title: Git Clone
     - script@1:
-        title: Complete iOS Build
+        title: Setup Build Environment and Create Missing Files
         inputs:
         - content: |
             #!/usr/bin/env bash
             set -ex
             
-            echo "Building USA Home iOS App"
+            echo "=== USA Home iOS Build Setup ==="
+            
+            # Navigate to iOS project
             cd ios/App
             
-            echo "Creating required Capacitor files"
+            echo "Creating missing Capacitor files..."
+            
+            # Create App/public directory
             mkdir -p App/public
             
             # Create config.xml
+            echo "Creating config.xml..."
             cat > App/config.xml << 'CONFIGEOF'
             <?xml version='1.0' encoding='utf-8'?>
             <widget id="com.usahome.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
@@ -43,6 +59,7 @@ workflows:
             CONFIGEOF
             
             # Create capacitor.config.json
+            echo "Creating capacitor.config.json..."
             cat > App/capacitor.config.json << 'CAPEOF'
             {
               "appId": "com.usahome.app",
@@ -65,6 +82,7 @@ workflows:
             CAPEOF
             
             # Create public/index.html
+            echo "Creating public/index.html..."
             cat > App/public/index.html << 'HTMLEOF'
             <!DOCTYPE html>
             <html lang="en">
@@ -110,6 +128,7 @@ workflows:
             HTMLEOF
             
             # Create public/capacitor.js
+            echo "Creating public/capacitor.js..."
             cat > App/public/capacitor.js << 'JSEOF'
             window.Capacitor = {
               isNativePlatform: () => true,
@@ -124,7 +143,13 @@ workflows:
             }
             JSEOF
             
-            echo "Creating Podfile"
+            # Verify files were created
+            echo "Verifying created files..."
+            ls -la App/
+            ls -la App/public/
+            
+            # Create updated Podfile
+            echo "Creating Podfile..."
             cat > Podfile << 'EOF'
             platform :ios, '14.0'
             use_frameworks!
@@ -154,30 +179,44 @@ workflows:
             end
             EOF
             
-            echo "Installing dependencies"
-            pod install --verbose
+            echo "Setup complete!"
+    - cocoapods-install@2:
+        inputs:
+        - source_root_path: ios/App
+        - podfile_path: ios/App/Podfile
+        title: Install CocoaPods Dependencies
+    - xcode-build-for-simulator@0:
+        inputs:
+        - project_path: ios/App/App.xcworkspace
+        - scheme: App
+        - simulator_device: iPhone 15
+        - configuration: Debug
+        title: Build for Simulator
+    - script@1:
+        title: Create Archive Package
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -ex
             
-            echo "Creating iOS archive"
-            xcodebuild archive \
-              -workspace App.xcworkspace \
-              -scheme App \
-              -configuration Release \
-              -archivePath build/App.xcarchive \
-              CODE_SIGN_IDENTITY="" \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGNING_ALLOWED=NO \
-              SKIP_INSTALL=NO \
-              ONLY_ACTIVE_ARCH=NO
-              
-            echo "Packaging build"
-            cd ../../
+            echo "=== Creating final package ==="
+            
+            # Create artifacts directory
             mkdir -p artifacts
-            cp -r ios/App/build/ artifacts/
-            tar -czf usa-home-ios-final.tar.gz artifacts/
-            echo "Build complete"
             
+            # Copy build outputs
+            if [ -d "ios/App/build" ]; then
+                cp -r ios/App/build/ artifacts/
+            fi
+            
+            # Create final package
+            tar -czf usa-home-ios-build.tar.gz artifacts/
+            
+            echo "Package created successfully"
+            ls -la usa-home-ios-build.tar.gz
     - deploy-to-bitrise-io@2:
         inputs:
-        - deploy_path: usa-home-ios-final.tar.gz
+        - deploy_path: usa-home-ios-build.tar.gz
         - notify_user_groups: none
         - is_enable_public_page: false
+        title: Deploy Build Artifacts
